@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
                     Tab(icon: Icon(Icons.call_made)),
                   ],
                 ),
-                // color: Theme.of(context).primaryColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
           ),
@@ -52,9 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Row(
         children: <Widget>[
-          Expanded(
-            child: Text('Checklist', textAlign: TextAlign.center),
-          ),
           Expanded(
             child: ShowList(),
           ),
