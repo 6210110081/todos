@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:todos/showlist/show_list.dart';
+import 'package:todos/myhomepage.dart';
+import 'package:todos/stats.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +21,12 @@ class MyApp extends StatelessWidget {
             appBar: AppBar(
               title: Text('ToDo HomeWork'),
             ),
-            body: MyHomePage(),
+            body: TabBarView(
+              children: [
+                MyHomePage(),
+                Stats(),
+              ],
+            ),
             bottomNavigationBar: SafeArea(
               child: Container(
                 child: TabBar(
@@ -36,27 +42,5 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: <Widget>[
-          Expanded(
-            child: ShowList(),
-          ),
-        ],
-      ),
-    );
   }
 }

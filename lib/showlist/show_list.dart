@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todos/model/model.dart';
+import 'package:todos/showlist/list_detail.dart';
+import 'package:http/http.dart' as http;
 
 class ShowList extends StatefulWidget {
   @override
@@ -7,56 +12,66 @@ class ShowList extends StatefulWidget {
 }
 
 class _ShowListState extends State<ShowList> {
-  List _selectedCategorys = List();
+  //initState
+  bool selected = false;
+  var userStatus = List<bool>();
 
-  Map<String, dynamic> _categories = {
-    "responseCode": "1",
-    "responseText": "List categories.",
-    "responseBody": [
-      {"category_id": "5", "category_name": "Barber"},
-      {"category_id": "3", "category_name": "Carpanter"},
-      {"category_id": "7", "category_name": "Cook"},
-      {"category_id": "9", "category_name": "alert"},
-      {"category_id": "11", "category_name": "asdl"},
-    ],
-    "responseTotalResult":
-        5 //Total result is 3 here becasue we have 3 categories in responseBody.
-  };
+  Future<List<Model>> _getUsers() async {
+    var data = await http.get("http://localhost:3000/Model");
 
-  void _onCategorySelected(bool selected, category_id) {
-    if (selected == true) {
-      setState(() {
-        _selectedCategorys.add(category_id);
-      });
-    } else {
-      setState(() {
-        _selectedCategorys.remove(category_id);
-      });
+    var jsonData = json.decode(data.body);
+
+    List<Model> models = [];
+
+    for (var u in jsonData) {
+      Model model = Model(u["id"], u["complete"], u["note"], u["task"]);
+
+      models.add(model);
+      userStatus.add(false);
     }
+
+    print(models.length);
+
+    return models;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          Expanded(
-            child: ListView.builder(
-                itemCount: _categories['responseTotalResult'],
-                itemBuilder: (BuildContext context, int index) {
-                  return CheckboxListTile(
-                    value: _selectedCategorys.contains(
-                        _categories['responseBody'][index]['category_id']),
-                    onChanged: (bool selected) {
-                      _onCategorySelected(selected,
-                          _categories['responseBody'][index]['category_id']);
+      body: Container(
+        child: FutureBuilder(
+          future: _getUsers(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            print(snapshot.data);
+            if (snapshot.data == null) {
+              return Container(child: Center(child: Text("Loading...")));
+            } else {
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int id) {
+                  return ListTile(
+                    title: Text(snapshot.data[id].note),
+                    subtitle: Text(snapshot.data[id].task),
+                    trailing: Checkbox(
+                        value: userStatus[id],
+                        onChanged: (bool val) {
+                          setState(() {
+                            userStatus[id] = !userStatus[id];
+                          });
+                        }),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) =>
+                                  ListDetail(snapshot.data[id])));
                     },
-                    title: Text(
-                        _categories['responseBody'][index]['category_name']),
                   );
-                }),
-          ),
-        ],
+                },
+              );
+            }
+          },
+        ),
       ),
     );
   }
